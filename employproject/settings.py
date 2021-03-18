@@ -26,7 +26,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -152,4 +152,4 @@ DATABASES['default'].update(db_from_env)
 if not DEBUG:
     SECRET_KEY = os.environ['SECRET_KEY']
     import django_heroku
-    django_heroku.settings(locals()) 
+    django_heroku.settings(locals() , staticfiles=False) 
