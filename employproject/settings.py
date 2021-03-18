@@ -152,4 +152,4 @@ DATABASES['default'].update(db_from_env)
 if not DEBUG:
     SECRET_KEY = 'sc37qt40u-6d)2j_!er@0_7ym^n0mo5i_8dkxnqmeb2*b576*s'
     import django_heroku
-    django_heroku.settings(locals() ,staticfiles=False) 
+    django_heroku.settings(locals()) 
