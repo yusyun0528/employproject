@@ -26,7 +26,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -150,6 +150,6 @@ db_from_env = dj_database_url.config(conn_max_age=600, ssl_require=True)
 DATABASES['default'].update(db_from_env)
 
 if not DEBUG:
-    SECRET_KEY = 'sc37qt40u-6d)2j_!er@0_7ym^n0mo5i_8dkxnqmeb2*b576*s'
+    SECRET_KEY = os.environ['SECRET_KEY']
     import django_heroku
     django_heroku.settings(locals()) 
