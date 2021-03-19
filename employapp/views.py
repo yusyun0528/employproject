@@ -252,6 +252,7 @@ def make_shift_func(request):
       # Excel形式でアサイン結果の出力をする
         def print_excel(self):
             exp_path = settings.MEDIA_ROOT + str(user.username)+'さんのシフト表.xls'
+            s3_path ='https://employproject.s3-ap-northeast-1.amazonaws.com/media/'+ str(user.username)+'さんのシフト表.xls'
             columns_1=self.Shift_Box
             df=pd.DataFrame(columns=columns_1)
             line_data_add=[]
@@ -272,7 +273,7 @@ def make_shift_func(request):
             for e in employees:
                 employees_name.append(e.name)
             df.insert(0,'名前',employees_name)
-            df.to_excel(exp_path, encoding='utf_8_sig',index=False)
+            df.to_excel(s3_path, encoding='utf_8_sig',index=False)
 
     # ユーザ番号を指定してコマ名を取得する
         def get_boxes_by_user(self, user_no):
