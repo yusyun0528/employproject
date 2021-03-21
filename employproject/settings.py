@@ -132,6 +132,10 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 STATICFILES_DIRS = (os.path.join(BASE_DIR, "static"),)
 
+CELERY_RESULT_BACKEND = 'django-db'
+
+CELERY_BROKER_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379/1')
+
 AWS_ACCESS_KEY_ID = 'AKIAT5LDGVON64Y3CAI7'
 AWS_SECRET_ACCESS_KEY = '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'
 AWS_STORAGE_BUCKET_NAME = 'employproject'
