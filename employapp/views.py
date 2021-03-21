@@ -1,6 +1,3 @@
-from django.shortcuts import render
-
-# Create your views here.
 import random
 from deap import base
 from deap import creator
@@ -22,6 +19,7 @@ from django.urls import reverse_lazy
 import pandas as pd
 from rq import Queue
 from worker import conn
+
 
 
 # Create your views here.
@@ -138,7 +136,6 @@ def delete_func(request, pk):
 #シフト作成
 @login_required
 def make_shift_func(request):
-    q = Queue(connection=conn)
     def make_shift():
 
         class Employee():
@@ -443,4 +440,5 @@ def make_shift_func(request):
         s = Shift(best_ind)
         s.print_excel()
         return render(request,'make_shift.html',{'user':user})
+    q = Queue(connection=conn)
     result = q.enqueue(make_shift(), 'http://heroku.com')
