@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path
-from .views import home_func ,signup_func ,login_func ,setting_require ,SettingCreate ,list_func ,logout_func ,update_func ,setting_update ,create_func ,delete_func, make_shift_func
+from .views import home_func ,signup_func ,login_func ,setting_require ,SettingCreate ,list_func ,logout_func ,update_func ,setting_update ,create_func ,delete_func, make_shift_func  ,complete
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -16,4 +16,5 @@ urlpatterns = [
     path('setting_update/<int:pk>',setting_update, name='setting_update'),    
     path('delete/<int:pk>',delete_func , name='delete'),
     path('make_shift/',make_shift_func ,name='make_shift'),
+    path('complete/',complete , name='complete')
 ]
