@@ -414,13 +414,13 @@ def make_shift():
     s = Shift(best_ind)
     #s.print_excel()
 
-
+def test():
+    print('ok')
 
 @login_required
 def make_shift_func(request):
     q = Queue(connection=conn)
-    result = q.enqueue(make_shift(), 'http://heroku.com')
-    return render(request,'wait.html',{})
+    result = q.enqueue(test, 'http://heroku.com')
 
 def complete():
     user=request.user
