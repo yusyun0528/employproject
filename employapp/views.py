@@ -414,8 +414,9 @@ def make_shift():
     s = Shift(best_ind)
     #s.print_excel()
 
-def test():
+def test(request):
     print('ok')
+    return render(request,'wait.html',{})
 
 @login_required
 def make_shift_func(request):
