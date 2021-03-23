@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'employapp.apps.EmployappConfig',
     'django_cleanup',
+    'django-rq',
     'storages',
 ]
 
@@ -127,6 +128,17 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 #STATIC_URL = '/static/'
+]
+RQ_QUEUES = {
+    'default': {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'DB': 0,
+        'PASSWORD': '',
+        'DEFAULT_TIMEOUT': 360,
+    },
+}
+RQ_API_TOKEN = 'hoge'
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
