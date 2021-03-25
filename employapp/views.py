@@ -20,7 +20,6 @@ import pandas as pd
 from django_rq import job
 from rq import Queue
 from worker import conn
-from bottle import route, run
 
 
 
