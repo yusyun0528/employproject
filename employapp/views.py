@@ -435,7 +435,7 @@ def make_shift_func(request):
     for i in range(len(shift_box)):
         need_people.append(setting.need_people)
  
-   make_shift.delay(employees ,manager ,shift_box ,need_people ,user.username )
+    make_shift.delay(employees ,manager ,shift_box ,need_people ,user.username)
     return render(request,'wait.html',{})
 
 def complete(request):
