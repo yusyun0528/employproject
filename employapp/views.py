@@ -17,8 +17,7 @@ from .models import EmployModel ,ShiftModel
 from django.views.generic import CreateView ,UpdateView ,DeleteView
 from django.urls import reverse_lazy
 import pandas as pd
-from rq import Queue
-from worker import conn
+from django_rq import job
 
 
 
@@ -134,7 +133,9 @@ def delete_func(request, pk):
     return redirect('list')
 
 #シフト作成
-def make_shift(): 
+@job
+def make_shift(employee ,manager ,shift_box, need_people ,username): 
+    
     class Employee():
         def __init__(self,no,name,grade,wills):
             self.no=no
@@ -143,70 +144,18 @@ def make_shift():
             self.wills=wills
         def is_applicated(self, box_name):
             return (box_name in self.wills)
-    #ワーカーの情報定義
-    user=request.user
-    object_list = EmployModel.objects.filter(employer=user.username) 
+
     employees=[]
-    for i in object_list:
-        can_wills=[]
-        if i.work_day0:
-            can_wills.append('1')
-        if i.work_day1:
-            can_wills.append('2')
-        if i.work_day2:
-            can_wills.append('3')
-        if i.work_day3:
-            can_wills.append('4')
-        if i.work_day4:
-            can_wills.append('5')
-        if i.work_day5:
-            can_wills.append('6')
-        if i.work_day6:
-            can_wills.append('7')
-        if i.work_day7:
-            can_wills.append('8')
-        if i.work_day8:
-            can_wills.append('9')
-        if i.work_day9:
-            can_wills.append('10')
-        if i.work_day10:
-            can_wills.append('11')
-        if i.work_day11:
-            can_wills.append('12')
-        if i.work_day12:
-            can_wills.append('13')
-        if i.work_day13:
-            can_wills.append('14')
-        if i.work_day14:
-            can_wills.append('15')
-        if i.work_day15:
-            can_wills.append('16')
-        if i.work_day16:
-            can_wills.append('17')
-        if i.work_day17:
-            can_wills.append('18')
-        if i.work_day18:
-            can_wills.append('19')
-        if i.work_day19:
-            can_wills.append('20')
-        if i.manager:
-            manager = True
-        else:
-            manager =False
-        worker = Employee(0, i.worker_name, manager, can_wills)
+    for i in employee:
+        worker=Employee(i[0],i[1],i[2],i[3])
         employees.append(worker)
 
-
+    
     class Shift():
-        Shift_Box=[]
-        Need_People=[]
-        setting = ShiftModel.objects.get(employer=user.username)
-        for i in range(setting.times):
-            Shift_Box.append(str(i+1))
-        time=len(Shift_Box)
-        for i in range(time):
-            Need_People.append(setting.need_people)
+        Shift_Box= shift_box
+        Need_People= need_people
         member=len(employees)
+        time=len(Shift_Box)
         def __init__(self, list):
             if list == None:
                 self.make_sample()
@@ -241,8 +190,8 @@ def make_shift():
                 index +=1   
       # Excel形式でアサイン結果の出力をする
         def print_excel(self):
-            exp_path = settings.MEDIA_ROOT + str(user.username)+'さんのシフト表.xls'
-            s3_path ='https://employproject.s3-ap-northeast-1.amazonaws.com/media/'+ str(user.username)+'さんのシフト表.xls'
+            exp_path = settings.MEDIA_ROOT + str(username)+'さんのシフト表.xls'
+            s3_path ='https://employproject.s3-ap-northeast-1.amazonaws.com/media/'+ str(username)+'さんのシフト表.xls'
             columns_1=self.Shift_Box
             df=pd.DataFrame(columns=columns_1)
             line_data_add=[]
@@ -320,33 +269,31 @@ def make_shift():
                 if not senior_included:
                   result.append(box_name)
             return result
-        #出勤の平均
-        def rest_average(self):
-            print('作業中')
+    
+    #目的関数
+    def evalOneMax(individual):
+        s=Shift(individual)
+        s.employees=employees        
+        not_hope_count=sum(s.abs_people_between_need_and_actual())/s.member*s.time 
+        required_people=s.not_applicated_assign() /s.member*s.time
+        if manager:
+            not_senior=len(s.no_senior_box()) /s.time        
+            return not_hope_count, required_people, not_senior
+        else:
+            return not_hope_count, required_people
     #-100000.0:いけない日に入れる、-50:マネージャーがいない、-100:人数が足りない(多い)
-    setting = ShiftModel.objects.get(employer=user.username)
-    if setting.manager:
+    if manager:
         creator.create("FitnessMax", base.Fitness, weights=(-100000.0,-100.0,-50.0))
     else:
         creator.create("FitnessMax", base.Fitness, weights=(-100000.0,-100.0,))
     creator.create("Individual", list, fitness=creator.FitnessMax)
     toolbox = base.Toolbox()
+    toolbox.register("attr_bool", random.randint, 0, 1)
     s =Shift([])
     toolbox.register("attr_bool", random.randint, 0, 1)
     toolbox.register("individual", tools.initRepeat, creator.Individual, toolbox.attr_bool, s.time*s.member)
     toolbox.register("population", tools.initRepeat, list, toolbox.individual)
-    #目的関数
-    def evalOneMax(individual):
-        s=Shift(individual)
-        setting = ShiftModel.objects.get(employer=user.username)
-        s.employees=employees        
-        not_hope_count=sum(s.abs_people_between_need_and_actual())/s.member*s.time 
-        required_people=s.not_applicated_assign() /s.member*s.time
-        if setting.manager:
-            not_senior=len(s.no_senior_box()) /s.time        
-            return not_hope_count, required_people, not_senior
-        else:
-            return not_hope_count, required_people
+    
     toolbox.register("evaluate", evalOneMax)
     #交叉関数を定義(二点交叉)
     toolbox.register("mate", tools.cxTwoPoint)
@@ -356,7 +303,7 @@ def make_shift():
     toolbox.register("select", tools.selTournament, tournsize=3)
     # 初期集団を生成する
     pop = toolbox.population(n=300)
-    CXPB, MUTPB, NGEN = 0.6, 0.5, 500 # 交差確率、突然変異確率、進化計算のループ回数
+    CXPB, MUTPB, NGEN = 0.6, 0.5, 10 # 交差確率、突然変異確率、進化計算のループ回数
     print("進化開始")
     # 初期集団の個体を評価する
     fitnesses = list(map(toolbox.evaluate, pop))
@@ -412,18 +359,85 @@ def make_shift():
     best_ind= tools.selBest(pop,1)[0]
     print(best_ind)
     s = Shift(best_ind)
-    #s.print_excel()
-
-def test(request):
-    print('ok')
-    return render(request,'wait.html',{})
+#    s.print_excel()
 
 @login_required
 def make_shift_func(request):
-    q = Queue(connection=conn)
-    result = q.enqueue(test, 'http://heroku.com')
+    #ワーカーの情報定義
+    user=request.user
+    object_list = EmployModel.objects.filter(employer=user.username) 
+    employees=[]
+    for i in object_list:
+        can_wills=[]
+        if i.work_day0:
+            can_wills.append('1')
+        if i.work_day1:
+            can_wills.append('2')
+        if i.work_day2:
+            can_wills.append('3')
+        if i.work_day3:
+            can_wills.append('4')
+        if i.work_day4:
+            can_wills.append('5')
+        if i.work_day5:
+            can_wills.append('6')
+        if i.work_day6:
+            can_wills.append('7')
+        if i.work_day7:
+            can_wills.append('8')
+        if i.work_day8:
+            can_wills.append('9')
+        if i.work_day9:
+            can_wills.append('10')
+        if i.work_day10:
+            can_wills.append('11')
+        if i.work_day11:
+            can_wills.append('12')
+        if i.work_day12:
+            can_wills.append('13')
+        if i.work_day13:
+            can_wills.append('14')
+        if i.work_day14:
+            can_wills.append('15')
+        if i.work_day15:
+            can_wills.append('16')
+        if i.work_day16:
+            can_wills.append('17')
+        if i.work_day17:
+            can_wills.append('18')
+        if i.work_day18:
+            can_wills.append('19')
+        if i.work_day19:
+            can_wills.append('20')
+        if i.manager:
+            manager = True
+        else:
+            manager =False
+        worker = (0, i.worker_name, manager, can_wills)
+        employees.append(worker)
 
-def complete():
+    
+    
+    setting = ShiftModel.objects.get(employer=user.username)
+    if setting.manager:
+        manager = True
+    else:
+        manager = False
+    
+    shift_box=[]
+    need_people=[]
+
+
+    for i in range(setting.times):
+        shift_box.append(str(i+1))
+    for i in range(len(shift_box)):
+        need_people.append(setting.need_people)
+
+    test.delay('Are you ready?')   
+    make_shift.delay(employees ,manager ,shift_box ,need_people ,user.username)
+    return render(request,'wait.html',{})
+
+def complete(request):
     user=request.user
     object_list = EmployModel.objects.filter(employer=user.username)    
     return render(request,'make_shift.html',{'user':user})
