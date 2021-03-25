@@ -17,7 +17,6 @@ from .models import EmployModel ,ShiftModel
 from django.views.generic import CreateView ,UpdateView ,DeleteView
 from django.urls import reverse_lazy
 import pandas as pd
-from django_rq import job
 from rq import Queue
 from worker import conn
 

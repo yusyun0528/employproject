@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'employapp.apps.EmployappConfig',
     'django_cleanup',
-    'django_rq',
     'storages',
 ]
 
