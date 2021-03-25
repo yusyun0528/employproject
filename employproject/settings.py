@@ -141,27 +141,9 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 MEDIA_URL = '/media/'
 
-CACHES = {
-    'queues': {
-        'BACKEND': 'redis_cache.cache.RedisCache',
-        'LOCATION': os.environ['DJANGO_CACHE_QUEUES_LOCATION'],
-        'TIMEOUT': None, # Never expires by default
-        'OPTIONS': {
-            'CLIENT_CLASS': 'redis_cache.client.DefaultClient',
-            'PARSER_CLASS': 'redis.connection.HiredisParser',
-            'CONNECTION_POOL_KWARGS': {'max_connections': 100},
-            'IGNORE_EXCEPTIONS': not DEBUG, # Get the errors only in DEBUG
-            'PICKLE_VERSION': -1  # Use the latest protocol version
-        }
-    }
-}
-
 RQ_QUEUES = {
     'default': {
-        'HOST': 'localhost',
-        'PORT': 6379,
-        'DB': 0,
-        'PASSWORD': 'some-password',
+        'URL': os.getenv('REDISTOGO_URL', 'redis://localhost:6379/0'),
         'DEFAULT_TIMEOUT': 500,
     },
     'with-sentinel': {
