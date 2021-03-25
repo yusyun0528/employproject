@@ -1,2 +1,2 @@
-web: gunicorn employproject.wsgi --log-file -
+web: gunicorn employproject.wsgi
 worker:python3 worker.py
