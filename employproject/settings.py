@@ -153,7 +153,6 @@ db_from_env = dj_database_url.config(conn_max_age=600, ssl_require=True)
 DATABASES['default'].update(db_from_env)
 
 if not DEBUG:
-    SECRET_KEY=os.environ.get('SECRET_KEY', "default_value")
     SECRET_KEY = os.environ['SECRET_KEY']
 
     AWS_ACCESS_KEY_ID = os.environ['AWS_ACCESS_KEY_ID']
