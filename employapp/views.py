@@ -435,7 +435,6 @@ def make_shift_func(request):
     for i in range(len(shift_box)):
         need_people.append(setting.need_people)
  
-    make_shift.delay(employees ,manager ,shift_box ,need_people ,user.username)
     q = Queue(connection=conn)
     result = q.enqueue(make_shift,employees ,manager ,shift_box ,need_people ,user.username )
     return render(request,'wait.html',{})
