@@ -18,6 +18,10 @@ from django.views.generic import CreateView ,UpdateView ,DeleteView
 from django.urls import reverse_lazy
 import pandas as pd
 from django_rq import job
+from rq import Queue
+from worker import conn
+from bottle import route, run
+
 
 
 
@@ -133,7 +137,6 @@ def delete_func(request, pk):
     return redirect('list')
 
 #シフト作成
-@job
 def make_shift(employee ,manager ,shift_box, need_people ,username): 
     
     class Employee():
@@ -432,9 +435,10 @@ def make_shift_func(request):
         shift_box.append(str(i+1))
     for i in range(len(shift_box)):
         need_people.append(setting.need_people)
-
-    test.delay('Are you ready?')   
+ 
     make_shift.delay(employees ,manager ,shift_box ,need_people ,user.username)
+    q = Queue(connection=conn)
+    result = q.enqueue(make_shift,employees ,manager ,shift_box ,need_people ,user.username )
     return render(request,'wait.html',{})
 
 def complete(request):
