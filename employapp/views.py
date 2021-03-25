@@ -192,7 +192,7 @@ def make_shift(employee ,manager ,shift_box, need_people ,username):
       # Excel形式でアサイン結果の出力をする
         def print_excel(self):
             exp_path = settings.MEDIA_ROOT + str(username)+'さんのシフト表.xls'
-            s3_path ='https://employproject.s3-ap-northeast-1.amazonaws.com/media/'+ str(username)+'さんのシフト表.xls'
+            s3_path = settings.S3_URL+ str(username)+'さんのシフト表.xls'
             columns_1=self.Shift_Box
             df=pd.DataFrame(columns=columns_1)
             line_data_add=[]
