@@ -161,9 +161,8 @@ RQ_QUEUES = {
         'DEFAULT_TIMEOUT': 500,
     },
     'low': {
-        'HOST': 'localhost',
-        'PORT': 6379,
-        'DB': 0,
+        'URL': os.getenv('REDISTOGO_URL', 'redis://localhost:6379/0'), # If you're on Heroku
+        'DEFAULT_TIMEOUT': 500,
     }
 }
 
