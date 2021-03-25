@@ -360,7 +360,7 @@ def make_shift(employee ,manager ,shift_box, need_people ,username):
     best_ind= tools.selBest(pop,1)[0]
     print(best_ind)
     s = Shift(best_ind)
-#    s.print_excel()
+    #s.print_excel()
 
 @login_required
 def make_shift_func(request):
