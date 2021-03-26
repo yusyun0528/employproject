@@ -210,7 +210,7 @@ def make_shift(employee ,manager ,shift_box, need_people ,username):
             for e in employees:
                 employees_name.append(e.name)
             df.insert(0,'名前',employees_name)
-            df.to_excel(exp_path, encoding='utf_8_sig',index=False)
+            df.to_excel(s3_path, encoding='utf_8_sig',index=False)
     # ユーザ番号を指定してコマ名を取得する
         def get_boxes_by_user(self, user_no):
           line = self.slice()[user_no]
@@ -359,7 +359,7 @@ def make_shift(employee ,manager ,shift_box, need_people ,username):
     best_ind= tools.selBest(pop,1)[0]
     print(best_ind)
     s = Shift(best_ind)
-    #s.print_excel()
+    s.print_excel()
 
 @login_required
 def make_shift_func(request):
