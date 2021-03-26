@@ -3,7 +3,6 @@ from deap import base
 from deap import creator
 from deap import tools
 
-
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
@@ -12,12 +11,13 @@ from django.conf import settings
 from django.db import IntegrityError
 from django.shortcuts import render ,redirect ,get_object_or_404
 from django.views.decorators.http import require_POST
+from django_rq import job
 from .forms import EmployForm ,ShiftForm
 from .models import EmployModel ,ShiftModel
 from django.views.generic import CreateView ,UpdateView ,DeleteView
 from django.urls import reverse_lazy
 import pandas as pd
-from django_rq import job
+import s3fs
 
 
 
@@ -190,6 +190,7 @@ def make_shift(employee ,manager ,shift_box, need_people ,username):
                 index +=1   
       # Excel形式でアサイン結果の出力をする
         def print_excel(self):
+            s3 = s3fs.S3FileSystem(anon=False)
             exp_path = settings.MEDIA_ROOT + str(username)+'さんのシフト表.xls'
             s3_path = settings.S3_URL+ str(username)+'さんのシフト表.xls'
             columns_1=self.Shift_Box
@@ -210,7 +211,8 @@ def make_shift(employee ,manager ,shift_box, need_people ,username):
             for e in employees:
                 employees_name.append(e.name)
             df.insert(0,'名前',employees_name)
-            df.to_excel(s3_path, encoding='utf_8_sig',index=False)
+            with s3.open(settings.AWS_STORAGE_BUCKET_NAME + '/' + str(username)+'さんのシフト表.xls','w') as f:                
+                df.to_excel(f)
     # ユーザ番号を指定してコマ名を取得する
         def get_boxes_by_user(self, user_no):
           line = self.slice()[user_no]
