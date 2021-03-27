@@ -211,7 +211,7 @@ def make_shift(employee ,manager ,shift_box, need_people ,username):
             for e in employees:
                 employees_name.append(e.name)
             df.insert(0,'名前',employees_name)
-            with s3.open(str(settings.AWS_STORAGE_BUCKET_NAME) + '/' + str(username)+'さんのシフト表.xls','w') as f:                
+            with s3.open(settings.AWS_STORAGE_BUCKET_NAME + '/' + str(username)+'さんのシフト表.xls','wb') as f:                
                 df.to_excel(f)
     # ユーザ番号を指定してコマ名を取得する
         def get_boxes_by_user(self, user_no):
