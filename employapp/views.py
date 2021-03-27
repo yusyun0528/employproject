@@ -438,11 +438,8 @@ def make_shift_func(request):
     make_shift.delay(employees ,manager ,shift_box ,need_people ,user.username)
     return render(request,'wait.html',{})
 
-
+@login_required
 def complete(request):
     user=request.user
     object_list = EmployModel.objects.filter(employer=user.username)
-    s3 = boto3.resource('s3')
-    bucket = s3.Bucket(settings.AWS_STORAGE_BUCKET_NAME)
-    bucket.download_file(str(username)+'さんのシフト表.xls', str(username)+'さんのシフト表.xls')    
     return render(request,'complete.html',{'user':user})
