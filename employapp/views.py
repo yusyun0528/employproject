@@ -1,8 +1,7 @@
-import random
+import boto3
 from deap import base
 from deap import creator
 from deap import tools
-
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
@@ -17,6 +16,7 @@ from .models import EmployModel ,ShiftModel
 from django.views.generic import CreateView ,UpdateView ,DeleteView
 from django.urls import reverse_lazy
 import pandas as pd
+import random
 import s3fs
 
 
@@ -438,7 +438,11 @@ def make_shift_func(request):
     make_shift.delay(employees ,manager ,shift_box ,need_people ,user.username)
     return render(request,'wait.html',{})
 
+
 def complete(request):
     user=request.user
-    object_list = EmployModel.objects.filter(employer=user.username)    
-    return render(request,'make_shift.html',{'user':user})
+    object_list = EmployModel.objects.filter(employer=user.username)
+    s3 = boto3.resource('s3')
+    bucket = s3.Bucket(settings.AWS_STORAGE_BUCKET_NAME)
+    bucket.download_file(str(username)+'さんのシフト表.xls', str(username)+'さんのシフト表.xls')    
+    return render(request,'complete.html',{'user':user})

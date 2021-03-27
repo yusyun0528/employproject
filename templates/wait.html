@@ -1,1 +1,14 @@
-しばらくお待ちください
+{% extends 'base.html' %}
+{% block header%}
+<div class="alert alert-primary" role="alert">
+  <h3>現在シフトを作成中です。</h3>
+</div>
+{% endblock header %}
+
+{% block content %}
+<div class='container'>
+    <div class="alert alert-success">
+        しばらくお待ちください。約5分後にダウンロードを開始します。
+    </div>
+</div>
+<META http-equiv="Refresh" content="300;URL=https://employproject.herokuapp.com/complete/">
