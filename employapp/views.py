@@ -62,6 +62,7 @@ def logout_func(request):
     return redirect('home')
 
 #初回ログイン時に設定の決定を求める
+@require_POST
 def setting_require(request):
     user=request.user    
     try:
@@ -189,9 +190,7 @@ def make_shift(employee ,manager ,shift_box, need_people ,username):
                 print (self.Shift_Box[index])
                 index +=1   
       # Excel形式でアサイン結果の出力をする
-        def print_excel(self):
-            s3 = s3fs.S3FileSystem(anon=False)
-            exp_path = settings.MEDIA_ROOT + str(username)+'さんのシフト表.xls'
+        def print_excel(self):            
             columns_1=self.Shift_Box
             df=pd.DataFrame(columns=columns_1)
             line_data_add=[]
@@ -210,8 +209,13 @@ def make_shift(employee ,manager ,shift_box, need_people ,username):
             for e in employees:
                 employees_name.append(e.name)
             df.insert(0,'名前',employees_name)
-            with s3.open(settings.AWS_STORAGE_BUCKET_NAME + '/' + str(username)+'さんのシフト表.xls','wb') as f:                
-                df.to_excel(f)
+            if settings.DEBUG:
+                exp_path = settings.MEDIA_ROOT + str(username)+'さんのシフト表.xls'
+                df.to_excel(exp_path, encoding='utf_8_sig',index=False)
+            else:
+                s3 = s3fs.S3FileSystem(anon=False)
+                with s3.open(settings.AWS_STORAGE_BUCKET_NAME + '/' + str(username)+'さんのシフト表.xls','wb') as f:                
+                    df.to_excel(f)
     # ユーザ番号を指定してコマ名を取得する
         def get_boxes_by_user(self, user_no):
           line = self.slice()[user_no]
@@ -437,15 +441,19 @@ def make_shift_func(request):
     make_shift.delay(employees ,manager ,shift_box ,need_people ,user.username)
     return render(request,'wait.html',{})
 
+@require_POST
 @login_required
 def complete(request):
     user=request.user
     object_list = EmployModel.objects.filter(employer=user.username)
-    s3_client = boto3.client('s3')
-    BUCKET = settings.AWS_STORAGE_BUCKET_NAME
-    OBJECT = str(user.username) + 'さんのシフト表.xls'
-    url = s3_client.generate_presigned_url(
-        'get_object',
-        Params={'Bucket': BUCKET, 'Key': OBJECT},
-        ExpiresIn=300)
+    if settings.DEBUG:
+        url = settings.MEDIA_ROOT + str(username)+'さんのシフト表.xls'
+    else:    
+        s3_client = boto3.client('s3')
+        BUCKET = settings.AWS_STORAGE_BUCKET_NAME
+        OBJECT = str(user.username) + 'さんのシフト表.xls'
+        url = s3_client.generate_presigned_url(
+            'get_object',
+            Params={'Bucket': BUCKET, 'Key': OBJECT},
+            ExpiresIn=300)
     return render(request,'complete.html',{'url': url})
