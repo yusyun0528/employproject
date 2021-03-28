@@ -9,7 +9,6 @@ from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.db import IntegrityError
 from django.shortcuts import render ,redirect ,get_object_or_404
-from django.views.decorators.http import require_POST
 from django_rq import job
 from .forms import EmployForm ,ShiftForm
 from .models import EmployModel ,ShiftModel
@@ -440,7 +439,6 @@ def make_shift_func(request):
     make_shift.delay(employees ,manager ,shift_box ,need_people ,user.username)
     return render(request,'wait.html',{})
 
-@require_POST
 @login_required
 def complete(request):
     user=request.user
