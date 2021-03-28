@@ -192,7 +192,6 @@ def make_shift(employee ,manager ,shift_box, need_people ,username):
         def print_excel(self):
             s3 = s3fs.S3FileSystem(anon=False)
             exp_path = settings.MEDIA_ROOT + str(username)+'さんのシフト表.xls'
-            s3_path = settings.S3_URL+ str(username)+'さんのシフト表.xls'
             columns_1=self.Shift_Box
             df=pd.DataFrame(columns=columns_1)
             line_data_add=[]
@@ -442,4 +441,11 @@ def make_shift_func(request):
 def complete(request):
     user=request.user
     object_list = EmployModel.objects.filter(employer=user.username)
-    return render(request,'complete.html',{'user':user})
+    s3_client = boto3.client('s3')
+    BUCKET = settings.AWS_STORAGE_BUCKET_NAME
+    OBJECT = str(user.username) + 'さんのシフト表.xls'
+    url = s3_client.generate_presigned_url(
+        'get_object',
+        Params={'Bucket': BUCKET, 'Key': OBJECT},
+        ExpiresIn=300)
+    return render(request,'complete.html',{'url': url})

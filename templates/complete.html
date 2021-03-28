@@ -13,7 +13,7 @@
 <div class='container'>
 <div class="alert alert-success alert-dismissible" role="alert">
 <p><img src="https://employproject.s3-ap-northeast-1.amazonaws.com/media/%E5%AE%8C%E6%88%90.png" width=600px float="center"></p>
-シフトの作成が完了しました。こちらからExcelファイルをダウンロードしましょう！ダウンロード<a href="s3://employproject/{{ user.username }}さんのシフト表.xls">ダウンロード</a>
+シフトの作成が完了しました。こちらからExcelファイルをダウンロードしましょう！<a href="{{ url }}">ダウンロード</a>
 </div>
 <a href="{% url 'home' %}" class="btn btn-primary" >ホームへ戻る</a>
 <a href="{% url 'list' %}" class="btn btn-primary" >従業員リストへ戻る</a>
