@@ -368,7 +368,11 @@ def make_shift(employee ,manager ,shift_box, need_people ,username):
 def make_shift_func(request):
     #ワーカーの情報定義
     user=request.user
-    object_list = EmployModel.objects.filter(employer=user.username) 
+    try:
+        object_list = EmployModel.objects.filter(employer=user.username) 
+    except ObjectDoesNotExist:
+        return render(request , 'error.html',{}) 
+    
     employees=[]
     for i in object_list:
         can_wills=[]
@@ -429,7 +433,6 @@ def make_shift_func(request):
     
     shift_box=[]
     need_people=[]
-
 
     for i in range(setting.times):
         shift_box.append(str(i+1))

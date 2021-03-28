@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block header%}
+<div class="alert alert-primary" role="alert">
+  <h3>作成中作成エラー</h3>
+</div>
+{% endblock header %}
+
+{% block content %}
+<div class='container'>
+    <div class="alert alert-success">
+        従業員を一人以上追加してください。
+    </div>
+    <a href="{% url 'list' %}" class="btn btn-primary" >従業員リストへ戻る</a>
+</div>
