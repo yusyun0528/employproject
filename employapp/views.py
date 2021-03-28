@@ -62,7 +62,6 @@ def logout_func(request):
     return redirect('home')
 
 #初回ログイン時に設定の決定を求める
-@require_POST
 def setting_require(request):
     user=request.user    
     try:
