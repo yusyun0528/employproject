@@ -369,10 +369,10 @@ def make_shift_func(request):
     #ワーカーの情報定義
     user=request.user
     try:
-        object_list = EmployModel.objects.filter(employer=user.username) 
+        employer = EmployModel.objects.get(employer=user.username) 
     except ObjectDoesNotExist:
         return render(request , 'error.html',{}) 
-    
+    object_list = EmployModel.objects.filter(employer=user.username) 
     employees=[]
     for i in object_list:
         can_wills=[]
