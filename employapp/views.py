@@ -2,7 +2,7 @@ import boto3
 from deap import base
 from deap import creator
 from deap import tools
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist ,MultipleObjectsReturned
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
@@ -369,78 +369,79 @@ def make_shift_func(request):
     #ワーカーの情報定義
     user=request.user
     try:
-        employer = EmployModel.objects.get(employer=user.username) 
+        employee = EmployModel.objects.get(employer=user.username)
     except ObjectDoesNotExist:
-        return render(request , 'error.html',{}) 
-    object_list = EmployModel.objects.filter(employer=user.username) 
-    employees=[]
-    for i in object_list:
-        can_wills=[]
-        if i.work_day0:
-            can_wills.append('1')
-        if i.work_day1:
-            can_wills.append('2')
-        if i.work_day2:
-            can_wills.append('3')
-        if i.work_day3:
-            can_wills.append('4')
-        if i.work_day4:
-            can_wills.append('5')
-        if i.work_day5:
-            can_wills.append('6')
-        if i.work_day6:
-            can_wills.append('7')
-        if i.work_day7:
-            can_wills.append('8')
-        if i.work_day8:
-            can_wills.append('9')
-        if i.work_day9:
-            can_wills.append('10')
-        if i.work_day10:
-            can_wills.append('11')
-        if i.work_day11:
-            can_wills.append('12')
-        if i.work_day12:
-            can_wills.append('13')
-        if i.work_day13:
-            can_wills.append('14')
-        if i.work_day14:
-            can_wills.append('15')
-        if i.work_day15:
-            can_wills.append('16')
-        if i.work_day16:
-            can_wills.append('17')
-        if i.work_day17:
-            can_wills.append('18')
-        if i.work_day18:
-            can_wills.append('19')
-        if i.work_day19:
-            can_wills.append('20')
-        if i.manager:
+        return render(request , 'error.html',{})
+    except MultipleObjectsReturned:
+        object_list = EmployModel.objects.filter(employer=user.username) 
+        employees=[]
+        for i in object_list:
+            can_wills=[]
+            if i.work_day0:
+                can_wills.append('1')
+            if i.work_day1:
+                can_wills.append('2')
+            if i.work_day2:
+                can_wills.append('3')
+            if i.work_day3:
+                can_wills.append('4')
+            if i.work_day4:
+                can_wills.append('5')
+            if i.work_day5:
+                can_wills.append('6')
+            if i.work_day6:
+                can_wills.append('7')
+            if i.work_day7:
+                can_wills.append('8')
+            if i.work_day8:
+                can_wills.append('9')
+            if i.work_day9:
+                can_wills.append('10')
+            if i.work_day10:
+                can_wills.append('11')
+            if i.work_day11:
+                can_wills.append('12')
+            if i.work_day12:
+                can_wills.append('13')
+            if i.work_day13:
+                can_wills.append('14')
+            if i.work_day14:
+                can_wills.append('15')
+            if i.work_day15:
+                can_wills.append('16')
+            if i.work_day16:
+                can_wills.append('17')
+            if i.work_day17:
+                can_wills.append('18')
+            if i.work_day18:
+                can_wills.append('19')
+            if i.work_day19:
+                can_wills.append('20')
+            if i.manager:
+                manager = True
+            else:
+                manager =False
+            worker = (0, i.worker_name, manager, can_wills)
+            employees.append(worker)
+
+
+
+        setting = ShiftModel.objects.get(employer=user.username)
+        if setting.manager:
             manager = True
         else:
-            manager =False
-        worker = (0, i.worker_name, manager, can_wills)
-        employees.append(worker)
+            manager = False
 
-    
-    
-    setting = ShiftModel.objects.get(employer=user.username)
-    if setting.manager:
-        manager = True
-    else:
-        manager = False
-    
-    shift_box=[]
-    need_people=[]
+        shift_box=[]
+        need_people=[]
 
-    for i in range(setting.times):
-        shift_box.append(str(i+1))
-    for i in range(len(shift_box)):
-        need_people.append(setting.need_people)
- 
-    make_shift.delay(employees ,manager ,shift_box ,need_people ,user.username)
-    return render(request,'wait.html',{})
+        for i in range(setting.times):
+            shift_box.append(str(i+1))
+        for i in range(len(shift_box)):
+            need_people.append(setting.need_people)
+    
+        make_shift.delay(employees ,manager ,shift_box ,need_people ,user.username)
+        return render(request,'wait.html',{})
 
 @login_required
 def complete(request):
