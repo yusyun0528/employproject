@@ -6,7 +6,7 @@
  
 アプリの一連の流れを紹介します。
  
-![](https://cpp-learning.com/wp-content/uploads/2019/05/pyxel-190505-161951.gif)
+![](https://youtu.be/j0RbZJbmJTI)
  
 この動画はユーザー登録からシフト作成が完了するまでの流れを説明するものです。
  
